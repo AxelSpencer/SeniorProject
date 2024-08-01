@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Logo from './assets/PrimaryLogo.png'
+import BookList from "./home"
 
 export type StackParamList = {
   YouNav: undefined;
@@ -65,10 +66,11 @@ const App: React.FC = () => {
         />
         <Tab.Screen
           name="HomeNav"
-          component={BlankPage}
+          component={BookList}
           options={{
             headerTitle: () => <CustomHeader />,
             title: "Home",
+            headerTitleAlign: "left",
             headerStyle: { backgroundColor: "#0D1117" },
             headerTintColor: "white",
             headerTitleStyle: {fontSize: 32, fontWeight: 'bold'}
