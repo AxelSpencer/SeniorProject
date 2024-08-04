@@ -55,6 +55,10 @@ const LandingPage: React.FC = () => {
     );
   };
 
+  const handleBookPress = (book: any) => {
+    navigation.navigate("BookModal", { book });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -67,9 +71,7 @@ const LandingPage: React.FC = () => {
           <TouchableOpacity onPress={() => navigation.navigate("ScannerModal")}>
             <Icon name="scan" size={24} color="white" style={styles.icon} />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("SearchLandingPage")}
-          >
+          <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>
             <Icon name="search" size={24} color="white" style={styles.icon} />
           </TouchableOpacity>
         </View>
@@ -79,15 +81,29 @@ const LandingPage: React.FC = () => {
           data={data.items}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={styles.bookContainer}>
-              {item.volumeInfo.imageLinks?.thumbnail && (
+            <TouchableOpacity
+              onPress={() => handleBookPress(item)}
+              style={styles.bookContainer}
+            >
+              {item.volumeInfo.imageLinks?.thumbnail ? (
                 <Image
                   source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
                   style={styles.coverImage}
                 />
+              ) : (
+                <Image
+                  source={require("../assets/NoCover.jpg")}
+                  style={styles.coverImage}
+                />
               )}
               <View style={styles.bookInfo}>
-                <Text style={styles.title}>{item.volumeInfo.title}</Text>
+                <Text
+                  style={styles.title}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {item.volumeInfo.title}
+                </Text>
                 {item.volumeInfo.authors.length > 0 && (
                   <Text style={styles.author}>
                     {item.volumeInfo.authors.join(", ")}
@@ -106,11 +122,11 @@ const LandingPage: React.FC = () => {
                   </View>
                 )}
               </View>
-            </View>
+            </TouchableOpacity>
           )}
         />
       ) : (
-        <Text>No books found.</Text>
+        <Text style={styles.noResultsText}>No books found.</Text>
       )}
     </SafeAreaView>
   );
@@ -194,6 +210,11 @@ const styles = StyleSheet.create({
   genreText: {
     color: "white",
     fontSize: 14,
+  },
+  noResultsText: {
+    color: "#888",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 

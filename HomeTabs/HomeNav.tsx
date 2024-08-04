@@ -1,16 +1,17 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import LandingPage from "./LandingPage";
-import SearchLandingPage from "./SearchLandingPage";
-import ResultsPage from "./ResultsPage"; // Import ResultsPage
+import SearchPage from "./SearchPage";
+import ResultsPage from "./ResultsPage";
+import BookModal from "./BookModal";
 
 const BlankPage = () => null;
 
 export type StackParamList = {
   LandingPage: undefined;
-  SearchLandingPage: undefined;
-  ResultsPage: { query: string }; // Define the params for ResultsPage
-  BookModal: undefined;
+  SearchPage: undefined;
+  ResultsPage: { query: string };
+  BookModal: { book: any };
   ScannerModal: undefined;
 };
 
@@ -25,8 +26,8 @@ const HomeNav: React.FC = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="SearchLandingPage"
-        component={SearchLandingPage}
+        name="SearchPage"
+        component={SearchPage}
         options={{
           headerShown: false,
         }}
@@ -41,9 +42,9 @@ const HomeNav: React.FC = () => {
       />
       <Stack.Screen
         name="BookModal"
-        component={BlankPage}
+        component={BookModal}
         options={{
-          presentation: "modal",
+          presentation: "transparentModal",
           headerShown: false,
         }}
       />
