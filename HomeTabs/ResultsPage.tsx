@@ -68,13 +68,18 @@ const ResultsPage: React.FC = () => {
     );
   };
 
+  const handleBookPress = (book: any) => {
+    navigation.navigate("BookModal", { book });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate("LandingPage")}>
           <Icon name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <TextInput onPress={() => navigation.goBack()}
+        <TextInput
+          onPress={() => navigation.goBack()}
           style={styles.input}
           placeholder="Search..."
           placeholderTextColor="#888"
@@ -90,15 +95,29 @@ const ResultsPage: React.FC = () => {
           data={data.items}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={styles.bookContainer}>
-              {item.volumeInfo.imageLinks?.thumbnail && (
+            <TouchableOpacity
+              onPress={() => handleBookPress(item)}
+              style={styles.bookContainer}
+            >
+              {item.volumeInfo.imageLinks?.thumbnail ? (
                 <Image
                   source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
                   style={styles.coverImage}
                 />
+              ) : (
+                <Image
+                  source={require("../assets/NoCover.jpg")}
+                  style={styles.coverImage}
+                />
               )}
               <View style={styles.bookInfo}>
-                <Text style={styles.bookTitle}>{item.volumeInfo.title}</Text>
+                <Text
+                  style={styles.bookTitle}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {item.volumeInfo.title}
+                </Text>
                 {item.volumeInfo.authors && (
                   <Text style={styles.author}>
                     {item.volumeInfo.authors.join(", ")}
@@ -117,7 +136,7 @@ const ResultsPage: React.FC = () => {
                   </View>
                 )}
               </View>
-            </View>
+            </TouchableOpacity>
           )}
         />
       ) : (

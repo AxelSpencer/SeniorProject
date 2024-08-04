@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import React from "react";
 
+// Update VolumeInfo to include ISBN, publisher, and pageCount
 interface VolumeInfo {
   imageLinks: any;
   averageRating: number | undefined;
@@ -11,6 +12,12 @@ interface VolumeInfo {
   publishedDate: string;
   description: string;
   thumbnail: string;
+  industryIdentifiers: {
+    type: string;
+    identifier: string;
+  }[]; // Added for ISBNs
+  publisher: string; // Added for publisher
+  pageCount: number; // Added for pageCount
 }
 
 interface BookData {
@@ -58,7 +65,6 @@ export const useFetchPopularBooks = () => {
   useEffect(() => {
     const fetchPopularBooks = async () => {
       try {
-        // Example query to fetch popular books in a specific category
         const response = await axios.get<BookData>(
           `https://www.googleapis.com/books/v1/volumes?q=subject:fiction&orderBy=relevance&key=${apiKey}`
         );
