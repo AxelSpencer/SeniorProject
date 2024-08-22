@@ -1,10 +1,11 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import HomeTab from "./HomeTabs/HomeNav";
+import LibraryNav from "./LibraryTabs/LibraryNav";
+import HomeNav from "./HomeTabs/HomeNav";
+import YouNav from "./YouTabs/YouNav";
 
 export type StackParamList = {
   YouNav: undefined;
@@ -13,8 +14,6 @@ export type StackParamList = {
 };
 
 const Tab = createBottomTabNavigator<StackParamList>();
-
-const BlankPage = () => <View style={styles.blankPage} />;
 
 const App: React.FC = () => (
   <NavigationContainer>
@@ -54,28 +53,21 @@ const App: React.FC = () => (
     >
       <Tab.Screen
         name="YouNav"
-        component={BlankPage}
+        component={YouNav}
         options={{ headerShown: false }}
       />
       <Tab.Screen
         name="HomeNav"
-        component={HomeTab}
+        component={HomeNav}
         options={{ headerShown: false }}
       />
       <Tab.Screen
         name="LibraryNav"
-        component={BlankPage}
+        component={LibraryNav}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>
   </NavigationContainer>
 );
-
-const styles = StyleSheet.create({
-  blankPage: {
-    flex: 1,
-    backgroundColor: "#0D1117",
-  },
-});
 
 export default App;
