@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import React from "react";
 
-// Update VolumeInfo to include ISBN, publisher, and pageCount
 interface VolumeInfo {
   imageLinks: any;
   averageRating: number | undefined;
@@ -15,9 +13,9 @@ interface VolumeInfo {
   industryIdentifiers: {
     type: string;
     identifier: string;
-  }[]; // Added for ISBNs
-  publisher: string; // Added for publisher
-  pageCount: number; // Added for pageCount
+  }[];
+  publisher: string;
+  pageCount: number;
 }
 
 interface BookData {
@@ -40,7 +38,7 @@ export const useFetchBooks = (bookName: string) => {
         const response = await axios.get<BookData>(
           `https://www.googleapis.com/books/v1/volumes?q=${bookName}&key=${apiKey}`
         );
-        console.log(response.data); // Log the response to verify the structure
+        console.log(response.data);
         setData(response.data);
       } catch (error) {
         setError("An error occurred while fetching book data.");
