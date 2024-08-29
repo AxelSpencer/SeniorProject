@@ -15,6 +15,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { StackParamList } from "./HomeNav";
+import ScannerScreen from "./ScannerScreen";
 
 type LandingPageNavigationProp = StackNavigationProp<StackParamList>;
 
@@ -68,7 +69,7 @@ const LandingPage: React.FC = () => {
         />
         <Text style={styles.headerTitle}>Bookshelf</Text>
         <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate("ScannerModal")}>
+          <TouchableOpacity onPress={() => navigation.navigate("ScannerScreen")}>
             <Icon name="scan" size={24} color="white" style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>

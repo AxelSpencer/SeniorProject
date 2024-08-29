@@ -12,7 +12,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow SeniorProject to access your camera.",
+        "NSMicrophoneUsageDescription": "Allow SeniorProject to access your microphone."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,12 +27,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    
     "plugins": [
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+          "cameraPermission": "Allow SeniorProject to access your camera."
         }
       ]
     ]
