@@ -15,6 +15,7 @@ export type StackParamList = {
   BookModal: { book: any };
   ScannerModal: undefined;
   ScannerScreen: undefined;
+  BarcodeScanner: undefined;
 };
 
 const Stack = createStackNavigator<StackParamList>();
