@@ -22,11 +22,31 @@ const Stack = createStackNavigator<StackParamList>();
 const HomeNav: React.FC = () => {
   return (
     <Stack.Navigator initialRouteName="LandingPage">
-      <Stack.Screen name="LandingPage" component={LandingPage} options={{ headerShown: false }} />
-      <Stack.Screen name="SearchPage" component={SearchPage} options={{ headerShown: false }} />
-      <Stack.Screen name="ResultsPage" component={ResultsPage} options={{ headerShown: false }} />
-      <Stack.Screen name="BookModal" component={BookModal} options={{ presentation: "transparentModal", headerShown: false }} />
-      <Stack.Screen name="BarcodeScanner" component={ScannerScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="LandingPage"
+        component={LandingPage}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SearchPage"
+        component={SearchPage}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ResultsPage"
+        component={ResultsPage}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BookModal"
+        component={BookModal}
+        options={{ presentation: "transparentModal", headerShown: false }}
+      />
+      <Stack.Screen
+        name="BarcodeScanner"
+        component={ScannerScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };

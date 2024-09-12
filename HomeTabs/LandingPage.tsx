@@ -15,7 +15,6 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { StackParamList } from "./HomeNav";
-import BarcodeScanner from "./BarcodeScanner";
 
 type LandingPageNavigationProp = StackNavigationProp<StackParamList>;
 

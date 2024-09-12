@@ -44,8 +44,6 @@ const BookModal: React.FC = () => {
 
   const handleDescriptionLayout = (event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
-    // Assuming 5 lines of text approximately equals 80 units of height
-    // Adjust this value based on your text styling and font size
     const truncatedHeight = 80; 
 
     if (height > truncatedHeight) {

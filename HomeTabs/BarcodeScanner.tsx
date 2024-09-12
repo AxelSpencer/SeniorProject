@@ -28,14 +28,12 @@ const BarcodeScanner: React.FC = () => {
     setLoading(true);
 
     try {
-      // Fetch the book information using Google Books API with the scanned ISBN code
       const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${data}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const bookData = await response.json();
 
-      // Assuming the book data is in items[0], redirect to BookModal with the book data
       if (bookData.items && bookData.items.length > 0) {
         const book = bookData.items[0];
         navigation.navigate('BookModal', { book });
@@ -66,7 +64,7 @@ const BarcodeScanner: React.FC = () => {
       <View style={styles.headerContainer}>
         <TouchableOpacity
           style={styles.header}
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.goBack}
         >
           <Icon name="arrow-back" size={24} color="white" />
           <Text style={styles.headerTitle}>Back</Text>
