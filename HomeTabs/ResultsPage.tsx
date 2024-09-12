@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   ActivityIndicator,
-  Alert,
   FlatList,
   StyleSheet,
   TouchableOpacity,

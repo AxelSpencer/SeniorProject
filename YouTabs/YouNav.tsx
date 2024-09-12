@@ -1,10 +1,12 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import SettingsPage from "./SettingsPage";
+import ProfilePage from "./ProfilePage";
 
 const BlankPage = () => null;
 
 export type StackParamList = {
-  YouPage: undefined;
+  ProfilePage: undefined;
   SettingsPage: undefined;
 };
 
@@ -12,15 +14,15 @@ const Stack = createStackNavigator<StackParamList>();
 
 const YouNav: React.FC = () => {
   return (
-    <Stack.Navigator initialRouteName="YouPage">
+    <Stack.Navigator initialRouteName="ProfilePage">
       <Stack.Screen
-        name="YouPage"
-        component={BlankPage}
+        name="ProfilePage"
+        component={ProfilePage}
         options={{ headerShown: false }}
       />
       <Stack.Screen
         name="SettingsPage"
-        component={BlankPage}
+        component={SettingsPage}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

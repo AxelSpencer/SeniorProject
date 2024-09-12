@@ -9,7 +9,6 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
