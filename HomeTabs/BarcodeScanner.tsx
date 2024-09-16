@@ -64,7 +64,7 @@ const BarcodeScanner: React.FC = () => {
       <View style={styles.headerContainer}>
         <TouchableOpacity
           style={styles.header}
-          onPress={() => navigation.goBack}
+          onPress={() => navigation.goBack()}
         >
           <Icon name="arrow-back" size={24} color="white" />
           <Text style={styles.headerTitle}>Back</Text>

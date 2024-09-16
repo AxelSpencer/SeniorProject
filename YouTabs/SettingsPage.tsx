@@ -1,19 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Image, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { StackParamList } from '../App';
-import * as ImagePicker from 'expo-image-picker';
-import Icon from 'react-native-vector-icons/Ionicons'; 
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { StackParamList } from "../App";
+import * as ImagePicker from "expo-image-picker";
+import Icon from "react-native-vector-icons/Ionicons";
 
 type SettingsPageNavigationProp = StackNavigationProp<StackParamList>;
 
 const SettingsPage: React.FC = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [bio, setBio] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [bio, setBio] = useState("");
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [bioCharCount, setBioCharCount] = useState(0);
   const navigation = useNavigation<SettingsPageNavigationProp>();
@@ -21,18 +33,18 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const user = await AsyncStorage.getItem('user');
+        const user = await AsyncStorage.getItem("user");
         if (user) {
           const userData = JSON.parse(user);
-          setFirstName(userData.firstName || '');
-          setLastName(userData.lastName || '');
-          setEmail(userData.email || '');
-          setBio(userData.bio || '');
+          setFirstName(userData.firstName || "");
+          setLastName(userData.lastName || "");
+          setEmail(userData.email || "");
+          setBio(userData.bio || "");
           setProfilePic(userData.profilePic || null);
           setBioCharCount(userData.bio ? userData.bio.length : 0);
         }
       } catch (error) {
-        console.error('Error loading user data', error);
+        console.error("Error loading user data", error);
       }
     };
 
@@ -42,30 +54,33 @@ const SettingsPage: React.FC = () => {
   const handleSaveChanges = async () => {
     try {
       const userData = { firstName, lastName, email, bio, profilePic };
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-      Alert.alert('Success', 'Changes saved.');
+      await AsyncStorage.setItem("user", JSON.stringify(userData));
+      Alert.alert("Success", "Changes saved.");
       navigation.goBack();
     } catch (error) {
-      console.error('Error saving user data', error);
-      Alert.alert('Error', 'Failed to save changes.');
+      console.error("Error saving user data", error);
+      Alert.alert("Error", "Failed to save changes.");
     }
   };
 
   const handleDeleteAccount = async () => {
     try {
-      await AsyncStorage.removeItem('user');
-      Alert.alert('Success', 'Account deleted.');
-      navigation.navigate('LoginScreen');
+      await AsyncStorage.removeItem("user");
+      Alert.alert("Success", "Account deleted.");
+      navigation.navigate("LoginScreen");
     } catch (error) {
-      console.error('Error deleting account', error);
-      Alert.alert('Error', 'Failed to delete account.');
+      console.error("Error deleting account", error);
+      Alert.alert("Error", "Failed to delete account.");
     }
   };
 
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Sorry, we need camera roll permissions to make this work!');
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission required",
+        "Sorry, we need camera roll permissions to make this work!"
+      );
       return;
     }
 
@@ -91,7 +106,7 @@ const SettingsPage: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingView}
       >
         <View style={styles.headerContainer}>
@@ -104,7 +119,10 @@ const SettingsPage: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity onPress={handlePickImage} style={styles.profilePicContainer}>
+        <TouchableOpacity
+          onPress={handlePickImage}
+          style={styles.profilePicContainer}
+        >
           {profilePic ? (
             <Image source={{ uri: profilePic }} style={styles.profilePic} />
           ) : (
@@ -147,12 +165,18 @@ const SettingsPage: React.FC = () => {
         </View>
 
         <View style={styles.buttonsContainer}>
-          <View style={styles.buttonWrapper}>
-            <Button title="Save Changes" onPress={handleSaveChanges} color="#089083" />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <Button title="Delete Account" onPress={handleDeleteAccount} color="#d9534f" />
-          </View>
+          <TouchableOpacity
+            style={[styles.buttonWrapper, styles.saveChangesButton]}
+            onPress={handleSaveChanges}
+          >
+            <Text style={styles.buttonText}>Save Changes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.buttonWrapper, styles.deleteAccountButton]}
+            onPress={handleDeleteAccount}
+          >
+            <Text style={styles.buttonText}>Delete Account</Text>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -163,27 +187,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#0D1117',
+    backgroundColor: "#0D1117",
   },
   keyboardAvoidingView: {
     flex: 1,
   },
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
   },
   headerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   headerTitle: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
     marginLeft: 8,
   },
   profilePicContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   profilePic: {
@@ -192,44 +216,65 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   input: {
-    width: '100%',
+    width: "100%",
     height: 50,
-    borderColor: '#24292F',
+    borderColor: "#24292F",
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#24292F',
-    color: '#fff',
+    backgroundColor: "#24292F",
+    color: "#fff",
   },
   bioContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: 12,
   },
   bioInput: {
     height: 100,
-    textAlignVertical: 'top',
-    paddingHorizontal: 16,
-    backgroundColor: '#24292F',
-    color: '#fff',
-    borderColor: '#24292F',
+    textAlignVertical: "top",
+    padding: 10,
+    backgroundColor: "#24292F",
+    color: "#fff",
+    borderColor: "#24292F",
     borderWidth: 1,
     borderRadius: 8,
   },
   bioCharCount: {
-    color: '#D3D3D3',
+    color: "#D3D3D3",
     fontSize: 14,
     marginTop: 4,
-    textAlign: 'right',
+    textAlign: "right",
   },
   buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
   },
+
   buttonWrapper: {
     flex: 1,
-    marginHorizontal: 4,
+    marginHorizontal: 8,
+  },
+
+  saveChangesButton: {
+    backgroundColor: "#089083",
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+
+  deleteAccountButton: {
+    backgroundColor: "#d9534f",
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

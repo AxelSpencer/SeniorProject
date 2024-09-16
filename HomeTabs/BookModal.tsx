@@ -14,14 +14,16 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { RouteProp } from "@react-navigation/native";
 import { StackParamList } from "./HomeNav";
 import Icon from "react-native-vector-icons/Ionicons";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 const NoCoverImage = require("../assets/NoCover.jpg");
 
+type BookModalNavigationProp = StackNavigationProp<StackParamList>;
 type BookModalRouteProp = RouteProp<StackParamList, "BookModal">;
 
 const BookModal: React.FC = () => {
   const route = useRoute<BookModalRouteProp>();
-  const navigation = useNavigation();
+  const navigation = useNavigation<BookModalNavigationProp>();
 
   const { book } = route.params;
   const {
@@ -101,6 +103,11 @@ const BookModal: React.FC = () => {
 
   const { isbn13, isbn10 } = getISBNs(industryIdentifiers || []);
 
+  // Handler for the Add to Library button
+  const handleAddToLibrary = () => {
+    navigation.navigate("AddToLibraryModal", { book });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity
@@ -179,6 +186,14 @@ const BookModal: React.FC = () => {
           </Text>
         )}
         <Text style={styles.ratingWrapper}>{renderRating(averageRating)}</Text>
+        
+        {/* Add to Library Button */}
+        <TouchableOpacity
+          style={styles.addToLibraryButton}
+          onPress={handleAddToLibrary}
+        >
+          <Text style={styles.addToLibraryText}>Add to Library</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -269,6 +284,18 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "white",
     marginVertical: 8,
+  },
+  addToLibraryButton: {
+    backgroundColor: "#089083",
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  addToLibraryText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 
