@@ -5,6 +5,7 @@ import SearchPage from "./SearchPage";
 import ResultsPage from "./ResultsPage";
 import BookModal from "./BookModal";
 import ScannerScreen from "./BarcodeScanner";
+import AddToLibrary from "./AddToLibrary";
 
 const BlankPage = () => null;
 
@@ -15,6 +16,7 @@ export type StackParamList = {
   BookModal: { book: any };
   ScannerModal: undefined;
   BarcodeScanner: undefined;
+  AddToLibraryModal: { book: any };
 };
 
 const Stack = createStackNavigator<StackParamList>();
@@ -40,6 +42,11 @@ const HomeNav: React.FC = () => {
       <Stack.Screen
         name="BookModal"
         component={BookModal}
+        options={{ presentation: "transparentModal", headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddToLibraryModal"
+        component={AddToLibrary}
         options={{ presentation: "transparentModal", headerShown: false }}
       />
       <Stack.Screen

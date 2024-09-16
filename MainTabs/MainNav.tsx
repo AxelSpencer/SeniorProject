@@ -47,21 +47,18 @@ const MainNav: React.FC = () => {
             if (route.name === "YouNav") {
               return (
                 <View
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 12,
-                    borderWidth: focused ? 1 : 0,
-                    borderColor: "white",
-                    overflow: "hidden",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
                 >
                   {profilePic ? (
                     <Image
                       source={{ uri: profilePic }}
-                      style={{ width: 24, height: 24 }}
+                      style={{ width: 24,
+                        height: 24,
+                        borderRadius: 12,
+                        borderWidth: focused ? 1 : 0,
+                        borderColor: "white",
+                        overflow: "hidden",
+                        justifyContent: "center",
+                        alignItems: "center", }}
                     />
                   ) : (
                     <Ionicons

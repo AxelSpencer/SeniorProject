@@ -8,6 +8,7 @@ import {
   Image,
   ImageBackground,
   SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -112,7 +113,12 @@ const LoginScreen: React.FC = () => {
           secureTextEntry
           placeholderTextColor="#D3D3D3"
         />
-        <Button title="Create Account" onPress={handleLogin} color="#089083" />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleLogin}
+        >
+          <Text style={styles.buttonText}>Create Account</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -152,8 +158,17 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   button: {
-    marginTop: 20,
-    width: "100%",
+    backgroundColor: "#089083",
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+    paddingHorizontal: 20,
   },
 });
 

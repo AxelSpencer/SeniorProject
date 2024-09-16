@@ -38,7 +38,6 @@ export const useFetchBooks = (bookName: string) => {
         const response = await axios.get<BookData>(
           `https://www.googleapis.com/books/v1/volumes?q=${bookName}&key=${apiKey}`
         );
-        console.log(response.data);
         setData(response.data);
       } catch (error) {
         setError("An error occurred while fetching book data.");
