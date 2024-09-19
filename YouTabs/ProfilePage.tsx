@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   Image,
+  FlatList,
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
@@ -22,6 +23,7 @@ const ProfilePage: React.FC = () => {
   const [bio, setBio] = useState("");
   const [booksRead, setBooksRead] = useState(0);
   const [pagesRead, setPagesRead] = useState(0);
+  const [reviews, setReviews] = useState<any[]>([]);
 
   const navigation = useNavigation<ProfilePageNavigationProp>();
 
@@ -34,8 +36,40 @@ const ProfilePage: React.FC = () => {
         setLastName(userData.lastName || "");
         setProfilePic(userData.profilePic || null);
         setBio(userData.bio || "");
-        setBooksRead(userData.booksRead || 0);
-        setPagesRead(userData.pagesRead || 0);
+      }
+
+      const storedBooks = await AsyncStorage.getItem("libraryBooks");
+      if (storedBooks) {
+        const books = JSON.parse(storedBooks);
+        const finishedBooks = books.filter(
+          (book: any) => book.status === "Finished"
+        );
+        setBooksRead(finishedBooks.length);
+        setPagesRead(
+          finishedBooks.reduce(
+            (total: number, book: any) =>
+              total + book.volumeInfo.pageCount || 0,
+            0
+          )
+        );
+
+        const bookReviews = books
+          .filter((book: any) => book.review || book.rating)
+          .map((book: any) => ({
+            title: book.volumeInfo.title,
+            review: book.review,
+            rating: book.rating,
+            image:
+              book.volumeInfo.imageLinks?.thumbnail ||
+              require("../assets/NoCover.jpg"),
+            dateAdded: book.dateAdded,
+          }))
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
+          );
+
+        setReviews(bookReviews);
       }
     } catch (error) {
       console.error("Error loading user data", error);
@@ -46,6 +80,36 @@ const ProfilePage: React.FC = () => {
     useCallback(() => {
       loadUserData();
     }, [loadUserData])
+  );
+
+  const renderReview = ({ item }: { item: any }) => (
+    <View style={styles.reviewContainer}>
+      <Image source={{ uri: item.image }} style={styles.reviewImage} />
+      <View style={styles.reviewContent}>
+        <Text style={styles.reviewTitle}>{item.title}</Text>
+        {item.review && <Text style={styles.reviewText}>{item.review}</Text>}
+
+        {item.rating ? (
+          <View style={styles.ratingContainer}>
+            {Array.from({ length: 5 }, (_, index) => (
+              <Icon
+                key={index}
+                name={index < item.rating ? "star" : "star-outline"}
+                size={20}
+                color="#D4AF37"
+              />
+            ))}
+          </View>
+        ) : (
+          <Icon
+            style={styles.noRatingText}
+            name={"star-outline"}
+            size={20}
+            color="#D4AF37"
+          />
+        )}
+      </View>
+    </View>
   );
 
   return (
@@ -82,8 +146,22 @@ const ProfilePage: React.FC = () => {
 
       <View style={styles.infoContainer}>
         <Text style={styles.name}>{`${firstName} ${lastName}`}</Text>
-        <Text style={styles.bio}>{bio}</Text>
+        <Text style={styles.bio}>{bio || "No bio"}</Text>
       </View>
+
+      {reviews.length > 0 ? (
+        <View style={styles.reviewsContainer}>
+          <Text style={styles.reviewsHeader}>Your Reviews</Text>
+          <View style={styles.divider} />
+          <FlatList
+            data={reviews}
+            keyExtractor={(item) => item.title}
+            renderItem={renderReview}
+          />
+        </View>
+      ) : (
+        <Text style={styles.noReviewsText}>No Reviews</Text>
+      )}
     </SafeAreaView>
   );
 };
@@ -148,6 +226,56 @@ const styles = StyleSheet.create({
   bio: {
     color: "#D3D3D3",
     fontSize: 16,
+  },
+  reviewsContainer: {
+    marginTop: 20,
+  },
+  reviewsHeader: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  divider: {
+    borderBottomColor: "#D3D3D3",
+    borderBottomWidth: 1,
+    marginVertical: 10,
+  },
+  reviewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  reviewImage: {
+    width: 50,
+    height: 75,
+    marginRight: 10,
+    borderRadius: 5,
+  },
+  reviewContent: {
+    flex: 1,
+  },
+  reviewTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  reviewText: {
+    color: "#D3D3D3",
+    fontSize: 14,
+  },
+  ratingContainer: {
+    flexDirection: "row",
+    marginTop: 5,
+  },
+  noReviewsText: {
+    color: "#888",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  noRatingText: {
+    color: "#D3D3D3",
+    marginTop: 5,
   },
 });
 

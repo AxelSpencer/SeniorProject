@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -9,46 +9,56 @@ import {
   Image,
   ActivityIndicator,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
-import { Picker } from '@react-native-picker/picker'; // Ensure to install the picker package.
+import { Picker } from '@react-native-picker/picker';
 import Icon from "react-native-vector-icons/Ionicons";
-import { StackParamList } from "./HomeNav";
+import { StackParamList } from "./LibraryNav";
 import { StackNavigationProp } from "@react-navigation/stack";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const storeBookData = async (bookData: any) => {
+const updateBookData = async (updatedBook: any) => {
   try {
     const storedData = await AsyncStorage.getItem('libraryBooks');
     let books = storedData ? JSON.parse(storedData) : [];
-    books.push(bookData);
-    await AsyncStorage.setItem('libraryBooks', JSON.stringify(books));
+    const bookIndex = books.findIndex((book: any) => book.id === updatedBook.id);
+    
+    if (bookIndex !== -1) {
+      books[bookIndex] = updatedBook;
+      await AsyncStorage.setItem('libraryBooks', JSON.stringify(books));
+    }
   } catch (error) {
-    console.error("Failed to save data to AsyncStorage", error);
+    console.error("Failed to update data in AsyncStorage", error);
   }
 };
 
-type AddToLibraryModalNavigationProp = StackNavigationProp<StackParamList>;
-type AddToLibraryModalRouteProp = RouteProp<StackParamList, "AddToLibraryModal">;
+const deleteBookData = async (bookId: string) => {
+  try {
+    const storedData = await AsyncStorage.getItem('libraryBooks');
+    let books = storedData ? JSON.parse(storedData) : [];
+    books = books.filter((book: any) => book.id !== bookId);
+    await AsyncStorage.setItem('libraryBooks', JSON.stringify(books));
+  } catch (error) {
+    console.error("Failed to delete data from AsyncStorage", error);
+  }
+};
 
-const AddToLibraryModal: React.FC = () => {
-  const route = useRoute<AddToLibraryModalRouteProp>();
-  const navigation = useNavigation<AddToLibraryModalNavigationProp>();
+type EditBookModalNavigationProp = StackNavigationProp<StackParamList>;
+type EditBookModalRouteProp = RouteProp<StackParamList, "EditBookModal">;
+
+const EditBookModal: React.FC = () => {
+  const route = useRoute<EditBookModalRouteProp>();
+  const navigation = useNavigation<EditBookModalNavigationProp>();
   const { book } = route.params;
-  const {
-    title,
-    authors,
-    description,
-    imageLinks,
-  } = book.volumeInfo;
 
   const [loading, setLoading] = useState(true);
   const NoCoverImage = require("../assets/NoCover.jpg");
 
-  const [status, setStatus] = useState("To be Read (TBR)");
-  const [format, setFormat] = useState("Digital");
-  const [rating, setRating] = useState(0);
-  const [review, setReview] = useState("");
+  const [status, setStatus] = useState(book.status || "To be Read (TBR)");
+  const [format, setFormat] = useState(book.format || "Digital");
+  const [rating, setRating] = useState(book.rating || 0);
+  const [review, setReview] = useState(book.review || "");
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
   const descriptionRef = useRef<Text>(null);
@@ -66,27 +76,34 @@ const AddToLibraryModal: React.FC = () => {
     }
   };
 
-  const renderRating = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <Icon
-        key={index}
-        name={index < rating ? "star" : "star-outline"}
-        size={24}
-        color="#FFD700"
-      />
-    ));
-  };
-
-  const handleAddToLibrary = async () => {
-    const bookData = {
+  const handleUpdateBook = async () => {
+    const updatedBook = {
       ...book,
       status,
       format,
       rating,
       review,
-      dateAdded: new Date().toISOString(),
     };
-    await storeBookData(bookData);
+    await updateBookData(updatedBook);
+    Alert.alert("Success", "Book updated.");
+    navigation.goBack();
+  };
+
+  const confirmDeleteBook = () => {
+    Alert.alert(
+      "Confirm Book Removal",
+      "Are you sure you want to remove this book from your library?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: handleDeleteBook },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const handleDeleteBook = async () => {
+    await deleteBookData(book.id);
+    Alert.alert("Success", "Book removed from library.");
     navigation.goBack();
   };
 
@@ -103,9 +120,9 @@ const AddToLibraryModal: React.FC = () => {
         <View style={styles.mainContainer}>
           <View style={styles.coverImageContainer}>
             {loading && <ActivityIndicator size="small" color="#0000ff" />}
-            {imageLinks?.thumbnail ? (
+            {book.volumeInfo.imageLinks?.thumbnail ? (
               <Image
-                source={{ uri: imageLinks.thumbnail }}
+                source={{ uri: book.volumeInfo.imageLinks.thumbnail }}
                 style={styles.coverImage}
                 onLoad={() => setLoading(false)}
                 onError={() => setLoading(false)}
@@ -120,8 +137,12 @@ const AddToLibraryModal: React.FC = () => {
             )}
           </View>
           <View style={styles.infoContainer}>
-            <Text style={styles.title}>{title}</Text>
-            {authors && <Text style={styles.author}>By {authors.join(", ")}</Text>}
+            <Text style={styles.title}>{book.volumeInfo.title}</Text>
+            {book.volumeInfo.authors && (
+              <Text style={styles.author}>
+                By {book.volumeInfo.authors.join(", ")}
+              </Text>
+            )}
             <View style={styles.descriptionContainer}>
               <Text
                 ref={descriptionRef}
@@ -129,7 +150,7 @@ const AddToLibraryModal: React.FC = () => {
                 numberOfLines={showFullDescription ? undefined : 6}
                 onLayout={handleDescriptionLayout}
               >
-                {description}
+                {book.volumeInfo.description}
               </Text>
               {isTruncated && (
                 <TouchableOpacity
@@ -144,38 +165,37 @@ const AddToLibraryModal: React.FC = () => {
             </View>
           </View>
         </View>
+
         <View style={styles.pickerContainer}>
           <Text style={styles.pickerLabel}>Status</Text>
-          <View style={styles.picker}>
-            <Picker
-              selectedValue={status}
-              onValueChange={(itemValue) => setStatus(itemValue)}
-              style={styles.pickerStyle}
-              dropdownIconColor={'#fff'}
-              itemStyle={styles.pickerStyle}
-            >
-              <Picker.Item label="To be Read (TBR)" value="TBR" />
-              <Picker.Item label="Currently Reading" value="CurrentlyReading" />
-              <Picker.Item label="Finished" value="Finished" />
-            </Picker>
-          </View>
+          <Picker
+            selectedValue={status}
+            onValueChange={(itemValue) => setStatus(itemValue)}
+            style={styles.picker}
+            dropdownIconColor={'#fff'}
+            itemStyle={styles.picker}
+          >
+            <Picker.Item label="To be Read (TBR)" value="TBR" />
+            <Picker.Item label="Currently Reading" value="CurrentlyReading" />
+            <Picker.Item label="Finished" value="Finished" />
+          </Picker>
         </View>
+
         <View style={styles.pickerContainer}>
           <Text style={styles.pickerLabel}>Format</Text>
-          <View style={styles.picker}>
-            <Picker
-              selectedValue={format}
-              onValueChange={(itemValue) => setFormat(itemValue)}
-              style={styles.pickerStyle}
-              dropdownIconColor={'#fff'}
-              itemStyle={styles.pickerStyle}
-            >
-              <Picker.Item label="Digital" value="Digital" />
-              <Picker.Item label="Hardcover" value="Hardcover" />
-              <Picker.Item label="Paperback" value="Paperback" />
-            </Picker>
-          </View>
+          <Picker
+            selectedValue={format}
+            onValueChange={(itemValue) => setFormat(itemValue)}
+            style={styles.picker}
+            dropdownIconColor={'#fff'}
+            itemStyle={styles.picker}
+          >
+            <Picker.Item label="Digital" value="Digital" />
+            <Picker.Item label="Hardcover" value="Hardcover" />
+            <Picker.Item label="Paperback" value="Paperback" />
+          </Picker>
         </View>
+
         <View style={styles.ratingContainer}>
           <Text style={styles.pickerLabel}>Rating</Text>
           <View style={styles.starsContainer}>
@@ -193,6 +213,8 @@ const AddToLibraryModal: React.FC = () => {
             ))}
           </View>
         </View>
+
+        {/* Review */}
         <View style={styles.reviewContainer}>
           <Text style={styles.pickerLabel}>Review</Text>
           <TextInput
@@ -208,16 +230,28 @@ const AddToLibraryModal: React.FC = () => {
             {review.length}/150
           </Text>
         </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={handleAddToLibrary}
-        >
-          <Text style={styles.addButtonText}>Add to Library</Text>
-        </TouchableOpacity>
+
+        {/* Buttons */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.updateButton}
+            onPress={handleUpdateBook}
+          >
+            <Text style={styles.buttonText}>Update Book</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={confirmDeleteBook}
+          >
+            <Text style={styles.buttonText}>Remove Book</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -243,55 +277,42 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   coverImageContainer: {
-    width: 120,
-    height: 180,
-    backgroundColor: "#444",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
+    flex: 1,
     marginRight: 16,
   },
   coverImage: {
     width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    height: 180,
+    resizeMode: "cover"
   },
   infoContainer: {
-    flex: 1,
+    flex: 2,
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     color: "white",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   author: {
     fontSize: 16,
     fontStyle: "italic",
     color: "lightgrey",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   descriptionContainer: {
-    marginBottom: 16,
+    marginTop: 8,
   },
   description: {
     fontSize: 14,
     color: "lightgrey",
   },
   seeMoreButton: {
-    marginTop: 8,
+    marginTop: 4,
   },
   seeMoreText: {
     fontSize: 14,
-    color: "#0D6EFD",
-  },
-  info: {
-    fontSize: 14,
-    color: "lightgrey",
-    marginBottom: 8,
-  },
-  bold: {
-    fontWeight: "bold",
+    color: "#1D9BF0",
   },
   pickerContainer: {
     marginBottom: 16,
@@ -304,9 +325,6 @@ const styles = StyleSheet.create({
   },
   picker: {
     backgroundColor: "#161B22",
-    borderRadius: 8,
-  },
-  pickerStyle: {
     color: "white",
   },
   ratingContainer: {
@@ -321,28 +339,42 @@ const styles = StyleSheet.create({
   textArea: {
     backgroundColor: "#161B22",
     color: "#fff",
-    padding: 10,
+    padding: 12,
     borderRadius: 8,
-    height: 100,
     textAlignVertical: "top",
+    height: 100,
   },
   reviewCounter: {
-    color: "lightgrey",
+    color: "#A1A1A1",
     textAlign: "right",
     marginTop: 4,
   },
-  addButton: {
-    backgroundColor: "#089083",
-    paddingVertical: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    marginTop: 16,
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24,
   },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
+  updateButton: {
+    flex: 1,
+    backgroundColor: "#089083",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginRight: 8,
+  },
+  deleteButton: {
+    flex: 1,
+    backgroundColor: "#F85149",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonText: {
     color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 
-export default AddToLibraryModal;
+
+export default EditBookModal;
