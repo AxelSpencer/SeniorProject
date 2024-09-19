@@ -22,7 +22,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.gordiviris01.SeniorProject"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,6 +39,11 @@
           "cameraPermission": "Allow SeniorProject to access your camera."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "8babae4f-9bdb-4d84-b9a8-d0faf1ea37b2"
+      }
+    }
   }
 }
