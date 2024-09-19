@@ -113,10 +113,7 @@ const LoginScreen: React.FC = () => {
           secureTextEntry
           placeholderTextColor="#D3D3D3"
         />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleLogin}
-        >
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Create Account</Text>
         </TouchableOpacity>
       </SafeAreaView>

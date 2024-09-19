@@ -11,41 +11,39 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
-import { Picker } from '@react-native-picker/picker'; // Ensure to install the picker package.
+import { Picker } from "@react-native-picker/picker";
 import Icon from "react-native-vector-icons/Ionicons";
 import { StackParamList } from "./HomeNav";
 import { StackNavigationProp } from "@react-navigation/stack";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const storeBookData = async (bookData: any) => {
   try {
-    const storedData = await AsyncStorage.getItem('libraryBooks');
+    const storedData = await AsyncStorage.getItem("libraryBooks");
     let books = storedData ? JSON.parse(storedData) : [];
     books.push(bookData);
-    await AsyncStorage.setItem('libraryBooks', JSON.stringify(books));
+    await AsyncStorage.setItem("libraryBooks", JSON.stringify(books));
   } catch (error) {
     console.error("Failed to save data to AsyncStorage", error);
   }
 };
 
 type AddToLibraryModalNavigationProp = StackNavigationProp<StackParamList>;
-type AddToLibraryModalRouteProp = RouteProp<StackParamList, "AddToLibraryModal">;
+type AddToLibraryModalRouteProp = RouteProp<
+  StackParamList,
+  "AddToLibraryModal"
+>;
 
 const AddToLibraryModal: React.FC = () => {
   const route = useRoute<AddToLibraryModalRouteProp>();
   const navigation = useNavigation<AddToLibraryModalNavigationProp>();
   const { book } = route.params;
-  const {
-    title,
-    authors,
-    description,
-    imageLinks,
-  } = book.volumeInfo;
+  const { title, authors, description, imageLinks } = book.volumeInfo;
 
   const [loading, setLoading] = useState(true);
   const NoCoverImage = require("../assets/NoCover.jpg");
 
-  const [status, setStatus] = useState("To be Read (TBR)");
+  const [status, setStatus] = useState("TBR");
   const [format, setFormat] = useState("Digital");
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
@@ -66,21 +64,10 @@ const AddToLibraryModal: React.FC = () => {
     }
   };
 
-  const renderRating = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <Icon
-        key={index}
-        name={index < rating ? "star" : "star-outline"}
-        size={24}
-        color="#FFD700"
-      />
-    ));
-  };
-
   const handleAddToLibrary = async () => {
     const bookData = {
       ...book,
-      status,
+      status: status || "TBR",
       format,
       rating,
       review,
@@ -121,7 +108,9 @@ const AddToLibraryModal: React.FC = () => {
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.title}>{title}</Text>
-            {authors && <Text style={styles.author}>By {authors.join(", ")}</Text>}
+            {authors && (
+              <Text style={styles.author}>By {authors.join(", ")}</Text>
+            )}
             <View style={styles.descriptionContainer}>
               <Text
                 ref={descriptionRef}
@@ -151,7 +140,7 @@ const AddToLibraryModal: React.FC = () => {
               selectedValue={status}
               onValueChange={(itemValue) => setStatus(itemValue)}
               style={styles.pickerStyle}
-              dropdownIconColor={'#fff'}
+              dropdownIconColor={"#fff"}
               itemStyle={styles.pickerStyle}
             >
               <Picker.Item label="To be Read (TBR)" value="TBR" />
@@ -167,7 +156,7 @@ const AddToLibraryModal: React.FC = () => {
               selectedValue={format}
               onValueChange={(itemValue) => setFormat(itemValue)}
               style={styles.pickerStyle}
-              dropdownIconColor={'#fff'}
+              dropdownIconColor={"#fff"}
               itemStyle={styles.pickerStyle}
             >
               <Picker.Item label="Digital" value="Digital" />
@@ -204,20 +193,16 @@ const AddToLibraryModal: React.FC = () => {
             multiline
             maxLength={150}
           />
-          <Text style={styles.reviewCounter}>
-            {review.length}/150
-          </Text>
+          <Text style={styles.reviewCounter}>{review.length}/150</Text>
         </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={handleAddToLibrary}
-        >
+        <TouchableOpacity style={styles.addButton} onPress={handleAddToLibrary}>
           <Text style={styles.addButtonText}>Add to Library</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

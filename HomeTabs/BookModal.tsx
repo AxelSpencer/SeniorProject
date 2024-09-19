@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -10,12 +10,16 @@ import {
   ActivityIndicator,
   LayoutChangeEvent,
 } from "react-native";
-import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
+import {
+  useRoute,
+  useNavigation,
+  useFocusEffect,
+} from "@react-navigation/native";
 import { RouteProp } from "@react-navigation/native";
 import { StackParamList } from "./HomeNav";
 import Icon from "react-native-vector-icons/Ionicons";
 import { StackNavigationProp } from "@react-navigation/stack";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const NoCoverImage = require("../assets/NoCover.jpg");
 
@@ -46,12 +50,11 @@ const BookModal: React.FC = () => {
   const [isInLibrary, setIsInLibrary] = useState(false);
   const descriptionRef = useRef<Text>(null);
 
-  // Fetch book data when screen is focused
   useFocusEffect(
     React.useCallback(() => {
       const checkIfBookInLibrary = async () => {
         try {
-          const storedData = await AsyncStorage.getItem('libraryBooks');
+          const storedData = await AsyncStorage.getItem("libraryBooks");
           const books = storedData ? JSON.parse(storedData) : [];
           const bookExists = books.some((b: any) => b.id === book.id);
           setIsInLibrary(bookExists);
@@ -66,7 +69,7 @@ const BookModal: React.FC = () => {
 
   const handleDescriptionLayout = (event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
-    const truncatedHeight = 80; 
+    const truncatedHeight = 80;
 
     if (height > truncatedHeight) {
       setIsTruncated(true);
@@ -123,7 +126,6 @@ const BookModal: React.FC = () => {
 
   const { isbn13, isbn10 } = getISBNs(industryIdentifiers || []);
 
-  // Handler for the Add to Library button
   const handleAddToLibrary = () => {
     navigation.navigate("AddToLibraryModal", { book });
   };
@@ -206,7 +208,7 @@ const BookModal: React.FC = () => {
           </Text>
         )}
         <Text style={styles.ratingWrapper}>{renderRating(averageRating)}</Text>
-        
+
         {/* Add to Library Button */}
         <TouchableOpacity
           style={styles.addToLibraryButton}

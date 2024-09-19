@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -12,21 +12,23 @@ import {
   Alert,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
 import Icon from "react-native-vector-icons/Ionicons";
 import { StackParamList } from "./LibraryNav";
 import { StackNavigationProp } from "@react-navigation/stack";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const updateBookData = async (updatedBook: any) => {
   try {
-    const storedData = await AsyncStorage.getItem('libraryBooks');
+    const storedData = await AsyncStorage.getItem("libraryBooks");
     let books = storedData ? JSON.parse(storedData) : [];
-    const bookIndex = books.findIndex((book: any) => book.id === updatedBook.id);
-    
+    const bookIndex = books.findIndex(
+      (book: any) => book.id === updatedBook.id
+    );
+
     if (bookIndex !== -1) {
       books[bookIndex] = updatedBook;
-      await AsyncStorage.setItem('libraryBooks', JSON.stringify(books));
+      await AsyncStorage.setItem("libraryBooks", JSON.stringify(books));
     }
   } catch (error) {
     console.error("Failed to update data in AsyncStorage", error);
@@ -35,10 +37,10 @@ const updateBookData = async (updatedBook: any) => {
 
 const deleteBookData = async (bookId: string) => {
   try {
-    const storedData = await AsyncStorage.getItem('libraryBooks');
+    const storedData = await AsyncStorage.getItem("libraryBooks");
     let books = storedData ? JSON.parse(storedData) : [];
     books = books.filter((book: any) => book.id !== bookId);
-    await AsyncStorage.setItem('libraryBooks', JSON.stringify(books));
+    await AsyncStorage.setItem("libraryBooks", JSON.stringify(books));
   } catch (error) {
     console.error("Failed to delete data from AsyncStorage", error);
   }
@@ -172,7 +174,7 @@ const EditBookModal: React.FC = () => {
             selectedValue={status}
             onValueChange={(itemValue) => setStatus(itemValue)}
             style={styles.picker}
-            dropdownIconColor={'#fff'}
+            dropdownIconColor={"#fff"}
             itemStyle={styles.picker}
           >
             <Picker.Item label="To be Read (TBR)" value="TBR" />
@@ -187,7 +189,7 @@ const EditBookModal: React.FC = () => {
             selectedValue={format}
             onValueChange={(itemValue) => setFormat(itemValue)}
             style={styles.picker}
-            dropdownIconColor={'#fff'}
+            dropdownIconColor={"#fff"}
             itemStyle={styles.picker}
           >
             <Picker.Item label="Digital" value="Digital" />
@@ -214,7 +216,6 @@ const EditBookModal: React.FC = () => {
           </View>
         </View>
 
-        {/* Review */}
         <View style={styles.reviewContainer}>
           <Text style={styles.pickerLabel}>Review</Text>
           <TextInput
@@ -226,12 +227,9 @@ const EditBookModal: React.FC = () => {
             multiline
             maxLength={150}
           />
-          <Text style={styles.reviewCounter}>
-            {review.length}/150
-          </Text>
+          <Text style={styles.reviewCounter}>{review.length}/150</Text>
         </View>
 
-        {/* Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.updateButton}
@@ -250,7 +248,6 @@ const EditBookModal: React.FC = () => {
     </SafeAreaView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -283,7 +280,7 @@ const styles = StyleSheet.create({
   coverImage: {
     width: "100%",
     height: 180,
-    resizeMode: "cover"
+    resizeMode: "cover",
   },
   infoContainer: {
     flex: 2,
@@ -375,6 +372,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
 
 export default EditBookModal;

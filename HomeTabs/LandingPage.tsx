@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,18 +15,39 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { StackParamList } from "./HomeNav";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type LandingPageNavigationProp = StackNavigationProp<StackParamList>;
 
 const LandingPage: React.FC = () => {
   const { data, loading, error } = useFetchPopularBooks();
   const navigation = useNavigation<LandingPageNavigationProp>();
+  const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchLibraryBooks = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem("libraryBooks");
+        if (storedData) {
+          setLibraryBooks(JSON.parse(storedData));
+        }
+      } catch (error) {
+        console.error("Failed to load library books", error);
+      }
+    };
+
+    fetchLibraryBooks();
+  }, []);
 
   if (loading) return <ActivityIndicator size="large" color="white" />;
   if (error) {
     Alert.alert("Error", error);
     return null;
   }
+
+  const isBookInLibrary = (bookId: string) => {
+    return libraryBooks.some((book) => book.id === bookId);
+  };
 
   const renderRating = (rating: number | undefined) => {
     if (rating === undefined) {
@@ -68,7 +89,9 @@ const LandingPage: React.FC = () => {
         />
         <Text style={styles.headerTitle}>Bookshelf</Text>
         <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate("BarcodeScanner")}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("BarcodeScanner")}
+          >
             <Icon name="scan" size={24} color="white" style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>
@@ -76,7 +99,7 @@ const LandingPage: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
-      {data && data.items.length > 0 ? (
+      {data && data.items && data.items.length > 0 ? (
         <FlatList
           data={data.items}
           keyExtractor={(item) => item.id}
@@ -85,6 +108,11 @@ const LandingPage: React.FC = () => {
               onPress={() => handleBookPress(item)}
               style={styles.bookContainer}
             >
+              {isBookInLibrary(item.id) && (
+                <View style={styles.libraryIndicator}>
+                  <Icon name="library" size={24} color="white" />
+                </View>
+              )}
               {item.volumeInfo.imageLinks?.thumbnail ? (
                 <Image
                   source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
@@ -168,6 +196,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#181C24",
     padding: 8,
     borderRadius: 8,
+    position: "relative",
+  },
+  libraryIndicator: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
+    zIndex: 1,
   },
   coverImage: {
     width: 100,
