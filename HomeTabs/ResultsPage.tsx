@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,16 @@ import {
   SafeAreaView,
   TextInput,
 } from "react-native";
-import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
+import {
+  useRoute,
+  RouteProp,
+  useNavigation,
+  useFocusEffect,
+} from "@react-navigation/native";
 import { StackParamList } from "./HomeNav";
-import { useFetchBooks } from "../useFetch";
 import Icon from "react-native-vector-icons/Ionicons";
 import { StackNavigationProp } from "@react-navigation/stack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type ResultsPageNavigationProp = StackNavigationProp<StackParamList>;
 type ResultsPageRouteProp = RouteProp<StackParamList, "ResultsPage">;
@@ -24,21 +29,52 @@ const ResultsPage: React.FC = () => {
   const { query } = route.params;
   const navigation = useNavigation<ResultsPageNavigationProp>();
   const [searchQuery, setSearchQuery] = useState(query);
+  const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const { data, loading, error } = useFetchBooks(searchQuery);
-
-  const handleSearch = () => {
-    navigation.navigate("ResultsPage", { query: searchQuery });
+  const fetchBooks = async (searchQuery: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}`
+      );
+      const result = await response.json();
+      setData(result);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch books");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) return <ActivityIndicator size="large" color="white" />;
-  if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error fetching results: {error}</Text>
-      </View>
-    );
-  }
+  const handleSearch = () => {
+    fetchBooks(searchQuery);
+  };
+
+  const fetchLibraryBooks = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("libraryBooks");
+      if (storedData) {
+        setLibraryBooks(JSON.parse(storedData));
+      }
+    } catch (error) {
+      console.error("Failed to load library books", error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchBooks(searchQuery);
+      fetchLibraryBooks();
+    }, [searchQuery])
+  );
+
+  const isBookInLibrary = (bookId: string) => {
+    return libraryBooks.some((book) => book.id === bookId);
+  };
 
   const renderRating = (rating: number | undefined) => {
     if (rating === undefined) {
@@ -89,7 +125,13 @@ const ResultsPage: React.FC = () => {
           <Icon name="search" size={24} color="white" />
         </TouchableOpacity>
       </View>
-      {data && data.items.length > 0 ? (
+      {loading ? (
+        <ActivityIndicator size="large" color="white" />
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Error fetching results: {error}</Text>
+        </View>
+      ) : data && data.items.length > 0 ? (
         <FlatList
           data={data.items}
           keyExtractor={(item) => item.id}
@@ -98,6 +140,11 @@ const ResultsPage: React.FC = () => {
               onPress={() => handleBookPress(item)}
               style={styles.bookContainer}
             >
+              {isBookInLibrary(item.id) && (
+                <View style={styles.libraryIndicator}>
+                  <Icon name="library" size={24} color="white" />
+                </View>
+              )}
               {item.volumeInfo.imageLinks?.thumbnail ? (
                 <Image
                   source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
@@ -127,11 +174,27 @@ const ResultsPage: React.FC = () => {
                 </View>
                 {item.volumeInfo.categories && (
                   <View style={styles.genresContainer}>
-                    {item.volumeInfo.categories.map((genre, index) => (
-                      <View key={index} style={styles.genreBubble}>
-                        <Text style={styles.genreText}>{genre}</Text>
-                      </View>
-                    ))}
+                    {item.volumeInfo.categories.map(
+                      (
+                        genre:
+                          | string
+                          | number
+                          | boolean
+                          | React.ReactElement<
+                              any,
+                              string | React.JSXElementConstructor<any>
+                            >
+                          | Iterable<React.ReactNode>
+                          | React.ReactPortal
+                          | null
+                          | undefined,
+                        index: React.Key | null | undefined
+                      ) => (
+                        <View key={index} style={styles.genreBubble}>
+                          <Text style={styles.genreText}>{genre}</Text>
+                        </View>
+                      )
+                    )}
                   </View>
                 )}
               </View>
@@ -173,6 +236,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#181C24",
     padding: 8,
     borderRadius: 8,
+    position: "relative",
+  },
+  libraryIndicator: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
+    zIndex: 1,
   },
   coverImage: {
     width: 100,

@@ -3,8 +3,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LibraryPage from "./LibraryPage";
 import EditBookModal from "./EditBookModal";
 
-const BlankPage = () => null;
-
 export type StackParamList = {
   LibraryPage: undefined;
   EditBookModal: { book: any };

@@ -7,8 +7,6 @@ import BookModal from "./BookModal";
 import ScannerScreen from "./BarcodeScanner";
 import AddToLibrary from "./AddToLibrary";
 
-const BlankPage = () => null;
-
 export type StackParamList = {
   LandingPage: undefined;
   SearchPage: undefined;
