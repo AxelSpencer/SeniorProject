@@ -63,9 +63,22 @@ const SettingsPage: React.FC = () => {
     }
   };
 
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      "Confirm Account Deletion",
+      "Are you sure you want to delete your account? This action is irreversible.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: handleDeleteAccount },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const handleDeleteAccount = async () => {
     try {
       await AsyncStorage.removeItem("user");
+      await AsyncStorage.removeItem("libraryBooks");
       Alert.alert("Success", "Account deleted.");
       navigation.navigate("LoginScreen");
     } catch (error) {
@@ -173,7 +186,7 @@ const SettingsPage: React.FC = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.buttonWrapper, styles.deleteAccountButton]}
-            onPress={handleDeleteAccount}
+            onPress={confirmDeleteAccount}
           >
             <Text style={styles.buttonText}>Delete Account</Text>
           </TouchableOpacity>

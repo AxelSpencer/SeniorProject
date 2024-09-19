@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,12 @@ import {
   ActivityIndicator,
   LayoutChangeEvent,
 } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
 import { RouteProp } from "@react-navigation/native";
 import { StackParamList } from "./HomeNav";
 import Icon from "react-native-vector-icons/Ionicons";
 import { StackNavigationProp } from "@react-navigation/stack";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NoCoverImage = require("../assets/NoCover.jpg");
 
@@ -42,7 +43,26 @@ const BookModal: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
+  const [isInLibrary, setIsInLibrary] = useState(false);
   const descriptionRef = useRef<Text>(null);
+
+  // Fetch book data when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkIfBookInLibrary = async () => {
+        try {
+          const storedData = await AsyncStorage.getItem('libraryBooks');
+          const books = storedData ? JSON.parse(storedData) : [];
+          const bookExists = books.some((b: any) => b.id === book.id);
+          setIsInLibrary(bookExists);
+        } catch (error) {
+          console.error("Failed to check if book is in library", error);
+        }
+      };
+
+      checkIfBookInLibrary();
+    }, [book.id])
+  );
 
   const handleDescriptionLayout = (event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
@@ -190,9 +210,12 @@ const BookModal: React.FC = () => {
         {/* Add to Library Button */}
         <TouchableOpacity
           style={styles.addToLibraryButton}
-          onPress={handleAddToLibrary}
+          onPress={isInLibrary ? undefined : handleAddToLibrary}
+          disabled={isInLibrary}
         >
-          <Text style={styles.addToLibraryText}>Add to Library</Text>
+          <Text style={styles.addToLibraryText}>
+            {isInLibrary ? "Already in Library!" : "Add to Library"}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
